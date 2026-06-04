@@ -10,6 +10,7 @@ from app.services.ai_service import (
 
 from app.rag.chunking import create_chunks
 from app.rag.vector_store import store_chunks
+from app.rag.rag_service import ask_resume
 
 router = APIRouter()
 
@@ -58,4 +59,16 @@ async def job_match(
 
     return {
         "job_match_analysis": result
+    }
+
+@router.post("/ask-resume")
+async def ask_resume_route(
+    question: str = Form(...)
+):
+
+    answer = await ask_resume(question)
+
+    return {
+        "question": question,
+        "answer": answer
     }

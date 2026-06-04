@@ -1,0 +1,32 @@
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+
+embedding_model = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
+
+
+def retrieve_context(question):
+
+    vector_store = Chroma(
+        persist_directory="chroma_db",
+        embedding_function=embedding_model
+    )
+
+    docs = vector_store.similarity_search(
+        question,
+        k=10
+    )
+
+    print("\n========== RETRIEVED DOCS ==========\n")
+
+    for i, doc in enumerate(docs):
+        print(f"\nDOC {i+1}")
+        print("-" * 50)
+        print(doc.page_content)
+
+    context = "\n".join(
+        [doc.page_content for doc in docs]
+    )
+
+    return context

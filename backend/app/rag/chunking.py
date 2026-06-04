@@ -1,4 +1,4 @@
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 def create_chunks(text):
@@ -9,5 +9,12 @@ def create_chunks(text):
     )
 
     chunks = splitter.split_text(text)
+
+    print("\n========== CHUNKS ==========\n")
+
+    for i, chunk in enumerate(chunks):
+        print(f"\nCHUNK {i+1}\n")
+        print(chunk)
+        print("-" * 50)
 
     return chunks

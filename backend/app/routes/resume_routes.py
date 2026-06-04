@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File,Form
+from fastapi import APIRouter, UploadFile, File, Form
 import os
 import shutil
 
@@ -8,9 +8,13 @@ from app.services.ai_service import (
     analyze_job_match
 )
 
+from app.rag.chunking import create_chunks
+from app.rag.vector_store import store_chunks
+
 router = APIRouter()
 
 UPLOAD_FOLDER = "uploads"
+
 
 @router.post("/upload-resume")
 async def upload_resume(file: UploadFile = File(...)):
@@ -20,14 +24,26 @@ async def upload_resume(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
+    # Extract text from PDF
     extracted_text = extract_text_from_pdf(file_path)
-    ai_analysis = await analyze_resume_with_ai(extracted_text)
+
+
+    chunks = create_chunks(extracted_text)
+
+    store_chunks(chunks)
+
+    
+
+    ai_analysis = await analyze_resume_with_ai(
+        extracted_text
+    )
 
     return {
-    "message": "Resume analyzed successfully",
-    "filename": file.filename,
-    "analysis": ai_analysis
+        "message": "Resume analyzed successfully",
+        "filename": file.filename,
+        "analysis": ai_analysis
     }
+
 
 @router.post("/job-match")
 async def job_match(

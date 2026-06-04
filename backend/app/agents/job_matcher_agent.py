@@ -16,27 +16,58 @@ client = Groq(
 async def analyze_job_match(resume_text, job_description):
 
     prompt = f"""
-    You are an AI Job Match Specialist.
+You are a Senior AI Recruitment and Technical Hiring Specialist
+with extensive experience evaluating software engineers,
+backend developers, full-stack developers, and AI engineers
+for product-based companies and modern tech startups.
 
-    Compare the candidate resume with the provided job description.
+Your responsibility is to perform a detailed resume-to-job
+compatibility analysis and provide realistic hiring insights
+similar to how an experienced technical recruiter or hiring manager
+would evaluate a candidate.
 
-    Analyze:
+Carefully compare the candidate resume with the provided
+job description and evaluate:
 
-    1. Job Match Percentage
-    2. Matching Skills
-    3. Missing Skills
-    4. Technical Compatibility
-    5. Hiring Readiness
-    6. Candidate Strengths
-    7. Weak Areas
-    8. Improvement Suggestions
+1. Overall Job Match Percentage (0-100)
+2. Matching Technical Skills
+3. Missing Skills and Technologies
+4. ATS Keyword Alignment
+5. Technical Compatibility Analysis
+6. Experience Relevance
+7. Candidate Strengths
+8. Weak Areas Affecting Selection Chances
+9. Hiring Readiness Evaluation
+10. Realistic Hiring Probability
+11. Resume Improvement Suggestions
+12. Technologies or Skills To Learn
+13. Project Recommendations To Improve Profile
+14. Industry-Level Feedback From Recruiter Perspective
 
-    Resume:
-    {resume_text}
+While analyzing:
+- Focus heavily on technical stack alignment
+- Evaluate backend/full-stack engineering skills carefully
+- Check whether the candidate fits modern hiring expectations
+- Consider scalability, deployment, APIs, databases, AI exposure,
+  cloud technologies, DevOps practices, and production-readiness
+- Provide constructive but realistic feedback
+- Be detailed and structured
 
-    Job Description:
-    {job_description}
-    """
+The final response should be:
+- professional
+- recruiter-focused
+- highly actionable
+- technically accurate
+- realistic for actual hiring scenarios
+
+
+
+{resume_text}
+
+
+
+{job_description}
+"""
 
     response = client.chat.completions.create(
 

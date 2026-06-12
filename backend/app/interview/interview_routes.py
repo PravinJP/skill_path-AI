@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Form
 import json
+from fastapi import APIRouter, Form, Depends
 
 from app.interview.report_service import (
     generate_interview_report
@@ -17,13 +18,27 @@ from app.interview.next_question_service import (
     generate_next_question
 )
 
+from app.dependencies.auth_dependency import (
+    get_current_user
+)
+
+from app.database.models import User
+
 router = APIRouter()
 
 
 @router.post("/interview/start")
-async def start_interview_route():
+async def start_interview_route(
 
-    question = await start_interview()
+    current_user: User = Depends(
+        get_current_user
+    )
+
+):
+
+    question = await start_interview(
+        current_user.id
+    )
 
     return {
         "question": question
@@ -74,8 +89,15 @@ async def interview_report_route(
 
 @router.post("/interview/next")
 async def next_question_route(
+
     question: str = Form(...),
-    answer: str = Form(...)
+
+    answer: str = Form(...),
+
+    current_user: User = Depends(
+        get_current_user
+    )
+
 ):
 
     evaluation_raw = await evaluate_answer(
@@ -109,7 +131,8 @@ async def next_question_route(
         question,
         answer,
         evaluation,
-        stage
+        stage,
+        current_user.id
     )
 
     return {
@@ -117,7 +140,6 @@ async def next_question_route(
         "evaluation": evaluation,
         "next_question": next_question
     }
-
 @router.get("/interview/history")
 async def interview_history():
 
@@ -125,6 +147,16 @@ async def interview_history():
 
 @router.post("/interview/reset")
 async def reset_interview():
+
+    interview_session["history"] = []
+
+    interview_session["question_count"] = 0
+
+    interview_session["stage"] = "intro"
+
+    return {
+        "message": "Interview session reset successfully"
+    }
 
     interview_session["history"] = []
 

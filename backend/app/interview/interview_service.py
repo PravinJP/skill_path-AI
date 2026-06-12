@@ -16,10 +16,13 @@ client = Groq(
 )
 
 
-async def start_interview():
+async def start_interview(
+    user_id
+):
 
     context = retrieve_context(
-        "candidate profile background education"
+        "candidate profile background education",
+        user_id
     )
 
     prompt = f"""

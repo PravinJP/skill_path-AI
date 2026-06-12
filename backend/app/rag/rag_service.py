@@ -3,21 +3,29 @@ import os
 from dotenv import load_dotenv
 from groq import Groq
 
-from app.rag.retrieval import retrieve_context
+from app.rag.retrieval import (
+    retrieve_context
+)
 
 load_dotenv()
 
 client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=os.getenv(
+        "GROQ_API_KEY"
+    )
 )
 
 
-async def ask_resume(question):
+async def ask_resume(
+    question,
+    user_id
+):
 
-    # Retrieve relevant resume chunks
-    context = retrieve_context(question)
+    context = retrieve_context(
+        question,
+        user_id
+    )
 
-    # Debugging: See what ChromaDB retrieved
     print("\n====================")
     print("RETRIEVED CONTEXT")
     print("====================")
@@ -25,67 +33,60 @@ async def ask_resume(question):
     print("====================\n")
 
     prompt = f"""
-    You are SkillPath AI, an advanced RAG-powered Career Intelligence Assistant.
+You are SkillPath AI,
+a RAG-powered Career Intelligence Assistant.
 
-    Your task is to answer the user's question using ONLY the retrieved resume context.
+Your task is to answer the user's question
+using ONLY the retrieved resume context.
 
-    =====================================================
-    RULES
-    =====================================================
+=====================================================
+RULES
+=====================================================
 
-    1. Use ONLY the information available in the retrieved resume context.
+1. Use ONLY information present in the retrieved context.
 
-    2. Do NOT invent:
-       - Skills
-       - Projects
-       - Experience
-       - Certifications
-       - Technologies
-       - Education
-       - Achievements
+2. Never invent:
+   - Skills
+   - Projects
+   - Experience
+   - Certifications
+   - Technologies
+   - Education
+   - Achievements
 
-    3. If the answer is not available in the context, respond with:
+3. If the answer is not available in the context,
+respond exactly:
 
-       "I could not find sufficient information in the resume to answer this question."
+"I could not find sufficient information in the resume to answer this question."
 
-    4. Keep responses professional and recruiter-friendly.
+4. Keep responses professional and recruiter-friendly.
 
-    5. When applicable include:
-       - Relevant Skills
-       - Relevant Projects
-       - Relevant Experience
-       - Strengths
-       - Areas for Improvement
-       - Career Recommendations
+5. Use bullet points when appropriate.
 
-    6. Use bullet points where appropriate.
+=====================================================
+RETRIEVED RESUME CONTEXT
+=====================================================
 
-    =====================================================
-    RETRIEVED RESUME CONTEXT
-    =====================================================
+{context}
 
-    {context}
+=====================================================
+USER QUESTION
+=====================================================
 
-    =====================================================
-    USER QUESTION
-    =====================================================
+{question}
 
-    {question}
+=====================================================
+RESPONSE FORMAT
+=====================================================
 
-    =====================================================
-    RESPONSE FORMAT
-    =====================================================
+When relevant include:
 
-    If relevant include:
-
-    - Summary
-    - Relevant Skills
-    - Relevant Projects
-    - Experience Insights
-    - Recommendations
-
-    Provide a clear, accurate, and helpful response.
-    """
+- Summary
+- Relevant Skills
+- Relevant Projects
+- Experience Insights
+- Recommendations
+"""
 
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
@@ -93,15 +94,17 @@ async def ask_resume(question):
             {
                 "role": "system",
                 "content": """
-                You are SkillPath AI,
-                a RAG-powered Career Intelligence Assistant.
+You are SkillPath AI.
 
-                Always answer using the retrieved context.
+You answer ONLY from retrieved resume context.
 
-                Never hallucinate information.
+Never hallucinate.
 
-                Be professional, concise, and recruiter-friendly.
-                """
+Never assume information not found
+in the retrieved context.
+
+Be professional and concise.
+"""
             },
             {
                 "role": "user",

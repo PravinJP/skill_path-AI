@@ -1,6 +1,3 @@
-import shutil
-import os
-
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
@@ -9,15 +6,27 @@ embedding_model = HuggingFaceEmbeddings(
 )
 
 
-def store_chunks(chunks):
+def store_chunks(
+    chunks,
+    user_id
+):
 
-    if os.path.exists("chroma_db"):
-        shutil.rmtree("chroma_db")
+    vector_store = Chroma(
+        persist_directory="chroma_db",
+        embedding_function=embedding_model
+    )
 
-    vector_store = Chroma.from_texts(
+    vector_store.add_texts(
+
         texts=chunks,
-        embedding=embedding_model,
-        persist_directory="chroma_db"
+
+        metadatas=[
+            {
+                "user_id": str(user_id)
+            }
+            for _ in chunks
+        ]
+
     )
 
     return vector_store

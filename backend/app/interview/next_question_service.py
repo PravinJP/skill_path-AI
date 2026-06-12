@@ -16,12 +16,14 @@ async def generate_next_question(
     previous_question,
     candidate_answer,
     evaluation,
-    stage
+    stage,
+    user_id
 ):
 
     resume_context = retrieve_context(
-        previous_question + " " + candidate_answer
-    )
+    previous_question + " " + candidate_answer,
+    user_id
+)
 
     prompt = f"""
 You are an experienced technical interviewer.

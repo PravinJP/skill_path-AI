@@ -7,7 +7,10 @@ embedding_model = HuggingFaceEmbeddings(
 )
 
 
-def retrieve_context(query):
+def retrieve_context(
+    query,
+    user_id
+):
 
     vector_store = Chroma(
         persist_directory="chroma_db",
@@ -15,8 +18,15 @@ def retrieve_context(query):
     )
 
     docs = vector_store.similarity_search(
+
         query,
-        k=5
+
+        k=5,
+
+        filter={
+            "user_id": str(user_id)
+        }
+
     )
 
     print("\n========== RETRIEVED DOCS ==========\n")

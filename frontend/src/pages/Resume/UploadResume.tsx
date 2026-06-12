@@ -1,0 +1,1 @@
+export default function UploadResume(){return <div>Upload Resume</div>}

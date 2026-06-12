@@ -1,11 +1,2 @@
-import InterviewPage
-from "./pages/InterviewPage";
-
-function App() {
-
-  return (
-    <InterviewPage />
-  );
-}
-
-export default App;
+import AppRoutes from "./routes/AppRoutes";
+export default function App(){ return <AppRoutes />; }

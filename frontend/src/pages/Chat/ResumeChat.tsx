@@ -1,0 +1,1 @@
+export default function ResumeChat(){return <div>Resume Chat</div>}

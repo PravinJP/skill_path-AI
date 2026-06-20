@@ -1,4 +1,5 @@
 import os
+import json
 
 from dotenv import load_dotenv
 from groq import Groq
@@ -10,63 +11,110 @@ client = Groq(
 )
 
 
-
-
-
-async def analyze_job_match(resume_text, job_description):
+async def analyze_job_match(
+    resume_text,
+    job_description
+):
 
     prompt = f"""
-You are a Senior AI Recruitment and Technical Hiring Specialist
-with extensive experience evaluating software engineers,
-backend developers, full-stack developers, and AI engineers
-for product-based companies and modern tech startups.
+You are SkillPath AI.
 
-Your responsibility is to perform a detailed resume-to-job
-compatibility analysis and provide realistic hiring insights
-similar to how an experienced technical recruiter or hiring manager
-would evaluate a candidate.
+You are a Senior Technical Recruiter and Hiring Manager.
 
-Carefully compare the candidate resume with the provided
-job description and evaluate:
+Analyze the candidate's resume against the job description.
 
-1. Overall Job Match Percentage (0-100)
-2. Matching Technical Skills
-3. Missing Skills and Technologies
-4. ATS Keyword Alignment
-5. Technical Compatibility Analysis
-6. Experience Relevance
-7. Candidate Strengths
-8. Weak Areas Affecting Selection Chances
-9. Hiring Readiness Evaluation
-10. Realistic Hiring Probability
-11. Resume Improvement Suggestions
-12. Technologies or Skills To Learn
-13. Project Recommendations To Improve Profile
-14. Industry-Level Feedback From Recruiter Perspective
+Return ONLY valid JSON.
 
-While analyzing:
-- Focus heavily on technical stack alignment
-- Evaluate backend/full-stack engineering skills carefully
-- Check whether the candidate fits modern hiring expectations
-- Consider scalability, deployment, APIs, databases, AI exposure,
-  cloud technologies, DevOps practices, and production-readiness
-- Provide constructive but realistic feedback
-- Be detailed and structured
-
-The final response should be:
-- professional
-- recruiter-focused
-- highly actionable
-- technically accurate
-- realistic for actual hiring scenarios
-
-
+==================================================
+CANDIDATE RESUME
+==================================================
 
 {resume_text}
 
-
+==================================================
+JOB DESCRIPTION
+==================================================
 
 {job_description}
+
+==================================================
+JSON FORMAT
+==================================================
+
+{{
+    "job_match_score": 0,
+    "hiring_probability": 0,
+    "ats_alignment_score": 0,
+    "job_readiness": "",
+    "matching_skills": [],
+    "missing_skills": [],
+    "candidate_strengths": [],
+    "improvement_areas": [],
+    "recommended_skills": [],
+    "project_recommendations": [],
+    "recruiter_verdict": ""
+}}
+
+==================================================
+RULES
+==================================================
+
+job_match_score:
+- Integer between 0 and 100
+
+hiring_probability:
+- Integer between 0 and 100
+
+ats_alignment_score:
+- Integer between 0 and 100
+
+job_readiness:
+Choose ONLY one:
+- Not Ready
+- Partially Ready
+- Interview Ready
+- Strong Match
+
+matching_skills:
+Maximum 10 items
+
+missing_skills:
+Maximum 10 items
+
+candidate_strengths:
+Maximum 5 items
+
+improvement_areas:
+Maximum 5 items
+
+recommended_skills:
+Maximum 5 items
+
+project_recommendations:
+Maximum 5 items
+
+recruiter_verdict:
+Maximum 2 sentences
+
+==================================================
+IMPORTANT
+==================================================
+
+Return ONLY JSON.
+
+Do NOT use markdown.
+
+Do NOT use headings.
+
+Do NOT use explanations.
+
+Do NOT generate reports.
+
+The first character must be {{
+
+The last character must be }}
+
+Generate JSON now.
 """
 
     response = client.chat.completions.create(
@@ -75,12 +123,60 @@ The final response should be:
 
         messages=[
             {
+                "role": "system",
+                "content": """
+Return ONLY raw JSON.
+
+Never use markdown.
+
+Never return explanations.
+
+Never return text outside JSON.
+"""
+            },
+            {
                 "role": "user",
                 "content": prompt
             }
         ],
 
-        temperature=0.4
+        temperature=0.2
     )
 
-    return response.choices[0].message.content
+    result = response.choices[0].message.content.strip()
+
+    result = result.replace(
+        "```json",
+        ""
+    )
+
+    result = result.replace(
+        "```",
+        ""
+    )
+
+    result = result.strip()
+
+    print("\n========== JOB MATCH RESPONSE ==========\n")
+    print(result)
+    print("\n========================================\n")
+
+    try:
+
+        parsed_json = json.loads(
+            result
+        )
+
+        return parsed_json
+
+    except Exception as e:
+
+        print("\nJSON ERROR:\n")
+        print(e)
+
+        print("\nRAW RESPONSE:\n")
+        print(result)
+
+        raise Exception(
+            f"Invalid JSON returned: {e}"
+        )

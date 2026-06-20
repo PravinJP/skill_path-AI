@@ -2,10 +2,12 @@ from sqlalchemy import (
     Column,
     Integer,
     Text,
+    JSON,
     ForeignKey,
     String
 )
 from sqlalchemy.orm import relationship
+
 
 from app.database.db import Base
 
@@ -63,6 +65,11 @@ class Resume(Base):
 
     resume_text = Column(
         Text
+    )
+
+    analysis = Column(
+        JSON,
+        nullable=True
     )
 
     user = relationship(

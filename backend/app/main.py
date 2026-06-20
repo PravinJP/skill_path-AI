@@ -39,3 +39,8 @@ app.include_router(
 @app.get("/")
 def home():
     return {"message": "SkillPath AI Backend Running"}
+
+
+
+# venv\Scripts\activate
+# uvicorn app.main:app --reload

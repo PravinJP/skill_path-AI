@@ -96,6 +96,10 @@ async def upload_resume(
         current_user.id
     )
 
+    ai_analysis = await analyze_resume_with_ai(
+        extracted_text
+    )
+
     resume = Resume(
 
         user_id=current_user.id,
@@ -104,7 +108,9 @@ async def upload_resume(
 
         file_path=file_path,
 
-        resume_text=extracted_text
+        resume_text=extracted_text,
+
+        analysis=ai_analysis
 
     )
 
@@ -113,10 +119,6 @@ async def upload_resume(
     db.commit()
 
     db.refresh(resume)
-
-    ai_analysis = await analyze_resume_with_ai(
-        extracted_text
-    )
 
     return {
 
@@ -240,6 +242,9 @@ async def get_my_resume(
         resume.file_name,
 
         "resume_text":
-        resume.resume_text
+        resume.resume_text,
+
+        "analysis":
+        resume.analysis
 
     }

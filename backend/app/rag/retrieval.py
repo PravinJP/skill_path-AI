@@ -1,7 +1,6 @@
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
-
 embedding_model = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
@@ -17,11 +16,13 @@ def retrieve_context(
         embedding_function=embedding_model
     )
 
-    docs = vector_store.similarity_search(
+    docs = vector_store.max_marginal_relevance_search(
 
         query,
 
-        k=5,
+        k=8,
+
+        fetch_k=20,
 
         filter={
             "user_id": str(user_id)
@@ -40,7 +41,10 @@ def retrieve_context(
     print("\n====================================\n")
 
     context = "\n\n".join(
-        [doc.page_content for doc in docs]
+        [
+            doc.page_content
+            for doc in docs
+        ]
     )
 
     return context

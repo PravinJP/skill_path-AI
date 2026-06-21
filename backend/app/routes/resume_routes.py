@@ -100,6 +100,11 @@ async def upload_resume(
         extracted_text
     )
 
+    print("\n========== AI ANALYSIS ==========")
+    print(ai_analysis)
+    print(type(ai_analysis))
+    print("=================================\n")
+
     resume = Resume(
 
         user_id=current_user.id,

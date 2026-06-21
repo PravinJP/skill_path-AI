@@ -16,6 +16,20 @@ def store_chunks(
         embedding_function=embedding_model
     )
 
+    # Delete previous resume chunks
+    existing = vector_store.get(
+        where={
+            "user_id": str(user_id)
+        }
+    )
+
+    if existing and existing["ids"]:
+
+        vector_store.delete(
+            ids=existing["ids"]
+        )
+
+    # Store fresh chunks
     vector_store.add_texts(
 
         texts=chunks,
@@ -27,6 +41,12 @@ def store_chunks(
             for _ in chunks
         ]
 
+    )
+
+    vector_store.persist()
+
+    print(
+        f"\nStored {len(chunks)} chunks for user {user_id}\n"
     )
 
     return vector_store
